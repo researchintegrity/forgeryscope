@@ -293,6 +293,23 @@ You can also pass a local checkpoint path instead of a model name:
 embedder = Embedder("/path/to/wblot_duplicate_embedder.ckpt", device="cuda", verbose=False)
 ```
 
+## Single-Image Pipeline
+
+`forgeryscope.pipeline.DuplicationDetector` runs the single-image example
+above with every model loaded once, and returns the detected panels and the
+groups of duplicated regions (each with its mask and the evidence behind it):
+
+```python
+from forgeryscope import PanelExtractor
+from forgeryscope.pipeline import DuplicationDetector
+
+detector = DuplicationDetector(device="cuda")
+result = detector.detect(PanelExtractor._load_image("/path/to/image.png"))
+print("authentic" if result.authentic else f"{len(result.detections)} group(s) of duplicated regions")
+for detection in result.detections:
+    print(detection.level, detection.panel_type, detection.panel_ids, detection.similarity)
+```
+
 ## Available Model Names
 
 - `yolo_panel_extractor`
