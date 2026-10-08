@@ -110,7 +110,8 @@ class LightGlueOverlap:
             kpts1 = feats1["keypoints"]
             matches = matches01["matches"]
             scores = matches01["scores"]
-            torch.cuda.synchronize()
+            if self.device.type == "cuda":
+                torch.cuda.synchronize(self.device)
 
             if matches is None or len(matches) < 4:
                 return None, None, None, "Not enough matches: {}".format(len(matches) if matches is not None else 0)
