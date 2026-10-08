@@ -310,6 +310,13 @@ for detection in result.detections:
     print(detection.level, detection.panel_type, detection.panel_ids, detection.similarity)
 ```
 
+## Docker Image
+
+`docker/` builds a self-contained image (all weights included, no network
+access needed at run time) with a command-line entry point that writes a JSON
+report and annotated images. [ELIES](https://github.com/researchintegrity/elies)
+runs it as a copy-move detection method. See [docker/README.md](docker/README.md).
+
 ## Available Model Names
 
 - `yolo_panel_extractor`
