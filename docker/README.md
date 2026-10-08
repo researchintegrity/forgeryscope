@@ -57,6 +57,9 @@ docker run --rm --network none \
 | `--timeout` | `0` (none) | Stop after this many seconds. |
 | `--max-pixels` | `200000000` | Largest image accepted (width x height). |
 
+Images are read as image viewers show them: the EXIF orientation is applied,
+and 16-bit grayscale images are scaled to 8 bits.
+
 The container can run as any user (`--user 1000:1000`): it writes only to
 `/tmp` and the output directory.
 

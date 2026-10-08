@@ -28,7 +28,7 @@ from typing import List, Optional, Tuple
 
 import cv2
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
 EXIT_INVALID_INPUT = 1
 EXIT_FAILED = 2
@@ -70,6 +70,22 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def to_rgb(image: Image.Image) -> np.ndarray:
+    """An RGB uint8 array of the image, upright as image viewers show it."""
+    image = ImageOps.exif_transpose(image)
+    if image.mode.startswith("I") or image.mode == "F":
+        # More than 8 bits per pixel: convert("RGB") would clip it to white
+        values = np.asarray(image, dtype=np.float64)
+        peak = float(values.max(initial=0))
+        if image.mode.startswith("I;16"):
+            scale = 65535.0
+        else:
+            scale = 255.0 if peak <= 255 else 65535.0 if peak <= 65535 else peak
+        gray = np.clip(values * (255.0 / scale), 0, 255).round().astype(np.uint8)
+        return np.stack([gray] * 3, axis=-1)
+    return np.array(image.convert("RGB"))
+
+
 def load_image(path: Path, max_pixels: int) -> np.ndarray:
     """The image as an RGB uint8 array."""
     if not path.is_file():
@@ -86,7 +102,7 @@ def load_image(path: Path, max_pixels: int) -> np.ndarray:
                 raise InputError(
                     f"Image too large: {image.width}x{image.height} pixels (limit {max_pixels})"
                 )
-            return np.array(image.convert("RGB"))
+            return to_rgb(image)
     except InputError:
         raise
     except (OSError, ValueError, SyntaxError) as e:
